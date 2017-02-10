@@ -1,0 +1,26 @@
+{
+             "home":{
+             		
+             	    
+                      "best":0,
+             	    "middle":0,
+                      "worst":0
+             	    
+             	},	
+             
+             "appartement":{
+             		
+             	    "best":0,
+                      "middle":0,
+                      "worst":0
+             		
+             },
+             "location":{
+             		
+             	    "best":0,
+                      "middle":0,
+                      "worst":0
+             		
+             }
+
+}
