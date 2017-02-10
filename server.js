@@ -34,8 +34,15 @@ function documentToSource(doc) {
     return doc.doctype.toString()+doc.innerHTML;
 }
 
+app.use(express.static(__dirname + '/assets'));
+
+/*app.get('/',function(req,response){
+  response.sendFile(path.join(__dirname+'/index.html'));
+  
+});*/
 
 app.get('/', (request, response) => {response.sendFile(__dirname+'/index.html')});
+
 
 app.post('/', function(req, res){
 

@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>Alison RAKOTOMAHEFA & Damien RUBAL</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="css/main.css" />
+	</head>
+	<body>
+
+		<!-- Header -->
+			<section id="header">
+				<header>
+					<h1>The Price is Right</h1>
+					<p>Is that your final answer?</p>
+				</header>
+				<footer>
+					<a href="#banner" class="button style2 scrolly-middle">Let's Go</a>
+				</footer>
+			</section>
+
+		<!-- Banner -->
+
+					<section id="banner">
+				<header>
+					<h2>Please enter url of the annonce</h2>
+				</header>
+				<form role="form" action="/" method="post">
+				<input type="text"  placeholder="Merci d'entrer l'url" name="p1"/>
+				<footer>
+					<button type="submit" class="btn btn-default pull-right">Comparer</button>
+          </footer>
+          </form>
+          </section>
+
+
+		<!-- Feature 1 -->
+			<article id="first" class="container box style1 right">
+				<a href="#" class="image fit"><img src="css/pic01.jpg" alt="" /></a>
+				<div class="inner">
+					<header>
+						<h2>Why use a property comparator?</h2>
+					</header>
+					<p>
+					Nowadays, all customers are aware of the value of each goods and services that are wide spreaded all over the world.
+					</p>
+				</div>
+			</article>
+
+		<!-- Feature 2 -->
+			<article class="container box style1 left">
+				<a href="#" class="image fit"><img src="css/pic02.png"/></a>
+
+				<div class="inner">
+					<header>
+						<h2>Who are they?</h2>
+					</header>
+
+					<p> Damien Rubal, 23 </br>
+						Alison Rakotomahefa, 21 </br>
+						Engineer IT Big Data & Connected object</br>
+						ESILV Promo 2018
+					</p>
+				</div>
+			</article>
+
+		<!-- Portfolio -->
+			<article class="container box style2">
+				<header>
+					<h2>Our satisfied customers</h2>
+					<p>"The best advertising is done by satisfied customers." </br> PHILIP KOTLER</p>
+
+				</header>
+				<div class="inner gallery">
+					<div class="row 0%">
+						<div class="3u 12u(mobile)"><a href="css/fulls/01.jpg" class="image fit"><img src="css/01.jpg" alt="" title="Ad infinitum" /></a></div>
+						<div class="3u 12u(mobile)"><a href="css/fulls/02.jpg" class="image fit"><img src="css/02.jpg" alt="" title="Dressed in Clarity" /></a></div>
+						<div class="3u 12u(mobile)"><a href="css/fulls/03.jpg" class="image fit"><img src="css/03.jpg" alt="" title="Raven" /></a></div>
+						<div class="3u 12u(mobile)"><a href="css/fulls/04.jpg" class="image fit"><img src="css/04.jpg" alt="" title="I'll have a cup of Disneyland, please" /></a></div>
+					</div>
+					<div class="row 0%">
+						<div class="3u 12u(mobile)"><a href="css/fulls/05.jpg" class="image fit"><img src="css/05.jpg" alt="" title="Cherish" /></a></div>
+						<div class="3u 12u(mobile)"><a href="css/fulls/06.jpg" class="image fit"><img src="css/06.jpg" alt="" title="Different." /></a></div>
+						<div class="3u 12u(mobile)"><a href="css/fulls/07.jpg" class="image fit"><img src="css/07.jpg" alt="" title="History was made here" /></a></div>
+						<div class="3u 12u(mobile)"><a href="css/fulls/08.jpg" class="image fit"><img src="css/08.jpg" alt="" title="People come and go and walk away" /></a></div>
+					</div>
+				</div>
+			</article>
+
+		<!-- Contact -->
+			<article class="container box style3">
+				<header>
+					<h2>Contact us</h2>
+					<p>To get in touch with us</p>
+				</header>
+				{% block content %}
+				{% endblock %}
+				<form method="post" action="#">
+					<div class="row 50%">
+						<div class="6u 12u$(mobile)"><input type="text" class="text" name="name" placeholder="Name" /></div>
+						<div class="6u$ 12u$(mobile)"><input type="text" class="text" name="email" placeholder="Email" /></div>
+						<div class="12u$">
+							<textarea name="message" placeholder="Message"></textarea>
+						</div>
+						<div class="12u$">
+							<ul class="actions">
+								<li><input type="submit" value="Send Message" /></li>
+							</ul>
+						</div>
+					</div>
+				</form>
+			</article>
+		<section id="footer">
+			<ul class="icons">
+				<li><a href="https://twitter.com/" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+				<li><a href="https://fr-fr.facebook.com/" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+				<li><a href="https://www.google.fr/" class="icon fa-google-plus"><span class="label">Google+</span></a></li>
+				<li><a href="https://fr.pinterest.com/" class="icon fa-pinterest"><span class="label">Pinterest</span></a></li>
+				<li><a href="https://dribbble.com/" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
+				<li><a href="https://fr.linkedin.com/" class="icon fa-linkedin"><span class="label">LinkedIn</span></a></li>
+			</ul>
+			<div class="copyright">
+				<ul class="menu">
+					<li>&copy; AlisonR & Dam's. All rights reserved.</li>
+				</ul>
+			</div>
+		</section>
+		<script type="text/javascript" src="index.js"></script>
+		<script type="text/javascript" src="server2.js"></script>
+		<script type="text/javascript" src="moduleLeBonCoin2.js"></script>
+		<script type="text/javascript" src="moduleMeilleurAgent2.js"></script>
+	</body>
+</html>
