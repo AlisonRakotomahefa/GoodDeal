@@ -1,19 +1,21 @@
-//We download all modules we need
-// example for  appartement https://www.leboncoin.fr/ventes_immobilieres/1085676416.htm?ca=12_s
+
+//example for  appartement https://www.leboncoin.fr/ventes_immobilieres/1085676416.htm?ca=12_s
 //example for home  https://www.leboncoin.fr/ventes_immobilieres/1088191366.htm?ca=12_s
-// example for Location https://www.leboncoin.fr/locations/1080724186.htm?ca=12_s
-// to make server
+//example for Location https://www.leboncoin.fr/locations/1080724186.htm?ca=12_s
+
+//to make server
 var express=require('express');
 //In order to take  informations in downloaded file
 var cheerio = require('cheerio');
+//to make request
 var request=require('request');
+//to read documents which are in the same folder
 var fs= require('fs');
+//to read through html document 'urlLeBonCoin = req.body.p1;'
 var bodyParser=require("body-parser");
 var path= require('path');
-var jsdom = require("jsdom");
 //In order to server works
 var app=express();
-app.use(bodyParser.urlencoded({ extended: true }));
 //To scrapp the web
 var urlLeBonCoin;
 var urlLesMeilleursAgents="https://www.meilleursagents.com/prix-immobilier/";
@@ -36,34 +38,32 @@ var content_MeilleurAgent= fs.readFileSync("moduleMeilleurAgent.json");
 var realEstate=JSON.parse(content_LeBonCoin);
 var MeilleurAgent=JSON.parse(content_MeilleurAgent);
 
-var htmlSource=fs.readFileSync("index.html","utf8");
 
-
-
+app.use(bodyParser.urlencoded({ extended: true }));
+// to use css on index.html
 app.use(express.static(__dirname + '/assets'));
-
-
+//server take the page at the level '/', and THEN send the html page
 app.get('/', (request, response) => {response.sendFile(__dirname+'/index.html')});
-
-
+//When the methode 'post' is used on the index.html: for the button , when the url has been sent.
 app.post('/', function(req, res){
 
-     urlLeBonCoin = req.body.p1;//we get back Url from the form
-     locationOrVente(urlLeBonCoin);
-     console.log(vente);
-    
-
+	//we get the url 
+     urlLeBonCoin = req.body.p1;
+    //we look if it's a rent or a sale, because the web page is different.
+     SaleOrRent(urlLeBonCoin);
+    //The first request to go in the url given by the user and scrap informations 
 	request(urlLeBonCoin,function(err,resp,body){
 
 		if (err){
 		console.log(err);
 		}else{
 			var data;
-			var $ = cheerio.load(body);		
-				
+		//To go through the html
+		 	var $ = cheerio.load(body);						
 		//Price of real estate
 			$('span.value:nth-child(3)').filter(function(){
 			data=$(this);
+			//We have to use the fonction text() to read it 
 			price=data.text();
 			realEstate.price=price;
 			})
@@ -106,6 +106,7 @@ app.post('/', function(req, res){
 			realEstate.energyClass=energyClass;
 			})
 		}
+		//if it's a rent 
 		else if (!vente){
 			realEstate.kindOfEstate="location";
 			//meuble
@@ -129,7 +130,7 @@ app.post('/', function(req, res){
 			GES=data.text();
 			realEstate.GES=GES;
 			})
-					//Energy Class
+			//Energy Class
 			$('div.line:nth-child(12) > h2:nth-child(1) > span:nth-child(2) > a:nth-child(1)').filter(function(){
 			data=$(this);
 			energyClass=data.text();
@@ -145,10 +146,8 @@ app.post('/', function(req, res){
 			realEstate.kindOfEstate=Clean(realEstate.kindOfEstate,false);
 			realEstate.price=Clean(realEstate.price,true);
 			realEstate.squareMeter=Clean(realEstate.squareMeter,true);
+
 			
-
-		
-
 			console.log("price = "+realEstate.price);
 			console.log("city = "+ realEstate.city);
 			console.log("kindOfEstate= "+ realEstate.kindOfEstate);
@@ -157,7 +156,7 @@ app.post('/', function(req, res){
 			console.log("GES:"+realEstate.GES);
 			console.log("energyClass="+realEstate.energyClass);
 
-		
+		// Seconde request to go on the right web page on the  web site 'lesMeilleursAgents'
 		 request(urlLesMeilleursAgents+realEstate.city+'/',function(err2,resp2,body2){ 
 
 				if(err2){
@@ -167,16 +166,17 @@ app.post('/', function(req, res){
 
 					var $ = cheerio.load(body2);
 
-
+					//We scrapp necessary informations according to the kind of the real estate
 					switch(realEstate.kindOfEstate){
 
 						case "maison":
+						//low price according to the web site 'lesMeilleursAgents'
 						var bestPriceHome=$('div.medium-uncollapse:nth-child(3) > div:nth-child(2)');
 						var bestPriceHomeText=bestPriceHome.text();
-
+						//Middle price according to the web site 'lesMeilleursAgents'
 						var middlePriceHome=$('div.medium-uncollapse:nth-child(3) > div:nth-child(3)');
 						var middlePriceHomeText=middlePriceHome.text();
-
+						//The worst price according to the web site 'lesMeilleursAgents'
 						var worstPriceHome=$('div.medium-uncollapse:nth-child(3) > div:nth-child(4)');
 						var worstPriceHomeText=worstPriceHome.text();
 
@@ -191,10 +191,13 @@ app.post('/', function(req, res){
 						console.log("bestPriceAppartmentText = "+MeilleurAgent.home.best);
 						console.log("middlePriceAppartmentText = "+ MeilleurAgent.home.middle);
 						console.log("worstPriceAppartmentTexte= "+ MeilleurAgent.home.worst);
-
+						//Compare informations which have been caught in the two web site to tell 
+						//if it's a good deal or not 
 						finalResult=Result(realEstate.kindOfEstate);
 						console.log(finalResult)
+						//We put the result in a html form
 						htmlResult=Html();
+
 						res.send(htmlResult);
 						
 						
@@ -251,6 +254,9 @@ app.post('/', function(req, res){
 						MeilleurAgent.location.best=bestPriceLocationText;
 						MeilleurAgent.location.middle=middlePriceLocationText;
 						MeilleurAgent.location.worst=worstPriceLocationText;
+						console.log("bestPriceAppartmentText = "+MeilleurAgent.location.best);
+						console.log("middlePriceAppartmentText = "+ MeilleurAgent.location.middle);
+						console.log("worstPriceAppartmentTexte= "+ MeilleurAgent.location.worst);
 
 						finalResult=Result(realEstate.kindOfEstate);
 						htmlResult=Html();
@@ -267,7 +273,7 @@ app.post('/', function(req, res){
 	})
 })
 
-		//a function allow us to have a int or a name of city correctly writted.
+//a function allow us to have a int or a name of city correctly writted.
 function Clean(arg,kind){
 		
 		if(kind){
@@ -405,8 +411,10 @@ function Result(kind){
    }
 }
 
-
-function locationOrVente(argument){
+//We have to know if it's a rent or a sale
+//because in the web site 'leboncoin', the squarred metter is not 
+// at the same place. 
+function SaleOrRent(argument){
 var caractere;
 var location;
 caractere=argument.substring(25,26);
