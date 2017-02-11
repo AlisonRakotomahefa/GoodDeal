@@ -3,7 +3,9 @@
              "city":"?",
              "kindOfEstate":"?",
              "room":0,
+             "meuble":"",
              "squareMeter":0,
              "GES":"?",
              "energyClass":"?"
+             
  }

@@ -1,5 +1,7 @@
 //We download all modules we need
-//https://www.leboncoin.fr/ventes_immobilieres/1085676416.htm?ca=12_s
+// example for  appartement https://www.leboncoin.fr/ventes_immobilieres/1085676416.htm?ca=12_s
+//example for home  https://www.leboncoin.fr/ventes_immobilieres/1088191366.htm?ca=12_s
+// example for Location https://www.leboncoin.fr/locations/1080724186.htm?ca=12_s
 // to make server
 var express=require('express');
 //In order to take  informations in downloaded file
@@ -23,8 +25,10 @@ var room;
 var squareMeter;
 var GES;
 var energyClass;
+var meuble;
 var finalResult='';
 var htmlResult;
+var vente=false;
 //To read JSON file
 var content_LeBonCoin= fs.readFileSync("moduleLeBonCoin.json");
 var content_MeilleurAgent= fs.readFileSync("moduleMeilleurAgent.json");
@@ -33,6 +37,7 @@ var realEstate=JSON.parse(content_LeBonCoin);
 var MeilleurAgent=JSON.parse(content_MeilleurAgent);
 
 var htmlSource=fs.readFileSync("index.html","utf8");
+
 
 
 app.use(express.static(__dirname + '/assets'));
@@ -44,6 +49,9 @@ app.get('/', (request, response) => {response.sendFile(__dirname+'/index.html')}
 app.post('/', function(req, res){
 
      urlLeBonCoin = req.body.p1;//we get back Url from the form
+     locationOrVente(urlLeBonCoin);
+     console.log(vente);
+    
 
 	request(urlLeBonCoin,function(err,resp,body){
 
@@ -51,9 +59,7 @@ app.post('/', function(req, res){
 		console.log(err);
 		}else{
 			var data;
-			var $ = cheerio.load(body);
-
-			
+			var $ = cheerio.load(body);		
 				
 		//Price of real estate
 			$('span.value:nth-child(3)').filter(function(){
@@ -79,6 +85,7 @@ app.post('/', function(req, res){
 			room=data.text();		
 			realEstate.room=room;
 			})
+		if (vente){	
 		//Squarred Meter
 			$('div.line:nth-child(9) > h2:nth-child(1) > span:nth-child(2)').filter(function(){
 			data=$(this);
@@ -98,6 +105,41 @@ app.post('/', function(req, res){
 			energyClass=data.text();
 			realEstate.energyClass=energyClass;
 			})
+		}
+		else if (!vente){
+			realEstate.kindOfEstate="location";
+			//meuble
+			$('div.line:nth-child(9) > h2:nth-child(1) > span:nth-child(2)').filter(function(){
+			data=$(this);
+			meuble=data.text();		
+			realEstate.meuble=meuble;
+			})
+
+			//Squarred Meter
+			$('div.line:nth-child(10) > h2:nth-child(1) > span:nth-child(2)').filter(function(){
+			data=$(this);
+			squareMeter=data.text();
+			realEstate.squareMeter=squareMeter;
+			console.log("TEEST3 "+realEstate.squareMeter)
+			})
+
+			//GES
+			$('div.line:nth-child(11) > h2:nth-child(1) > span:nth-child(2) > a:nth-child(1)').filter(function(){
+			data=$(this);
+			GES=data.text();
+			realEstate.GES=GES;
+			})
+					//Energy Class
+			$('div.line:nth-child(12) > h2:nth-child(1) > span:nth-child(2) > a:nth-child(1)').filter(function(){
+			data=$(this);
+			energyClass=data.text();
+			realEstate.energyClass=energyClass;
+			})
+
+		}
+		else{
+			console.log("Sorry , but we only handle sell or location");
+		}
 
 			realEstate.city=Clean(realEstate.city,false);
 			realEstate.kindOfEstate=Clean(realEstate.kindOfEstate,false);
@@ -146,8 +188,15 @@ app.post('/', function(req, res){
 						MeilleurAgent.home.best=bestPriceHomeText;
 						MeilleurAgent.home.middle=middlePriceHomeText;
 						MeilleurAgent.home.worst=worstPriceHomeText;
+						console.log("bestPriceAppartmentText = "+MeilleurAgent.home.best);
+						console.log("middlePriceAppartmentText = "+ MeilleurAgent.home.middle);
+						console.log("worstPriceAppartmentTexte= "+ MeilleurAgent.home.worst);
 
-						Result(realEstate.kindOfEstate);
+						finalResult=Result(realEstate.kindOfEstate);
+						console.log(finalResult)
+						htmlResult=Html();
+						res.send(htmlResult);
+						
 						
 						break;
 
@@ -176,15 +225,9 @@ app.post('/', function(req, res){
 							console.log("worstPriceAppartmentTexte= "+ MeilleurAgent.appartement.worst);
 
 							finalResult=Result(realEstate.kindOfEstate);
-							//res.send(finalResult);
-							/*res.send('<!DOCTYPE html><html><head><title>goodDeal</title></head>'+
-								    '<body><form style="text-align:center"><legend>Resultat</legend>'+
-								    '<h1> '+finalResult+' </h1> <br /></form>'+
-								    '</body></html>');
-							*/
 							htmlResult=Html();
 							res.send(htmlResult);
-							//res.send({ some: 'moduleLeBonCoin2.json' });
+						
 
 							
 						break;
@@ -209,7 +252,10 @@ app.post('/', function(req, res){
 						MeilleurAgent.location.middle=middlePriceLocationText;
 						MeilleurAgent.location.worst=worstPriceLocationText;
 
-						Result(realEstate.kindOfEstate);
+						finalResult=Result(realEstate.kindOfEstate);
+						htmlResult=Html();
+						res.send(htmlResult);
+						
 						break;
 
 					}
@@ -256,6 +302,7 @@ function Result(kind){
   	var RealLowPrice;
 	var RealmiddlePrice;
 	var RealHightPrice;
+	var error ="There are errors on your informations reguarding your real estate "+"Recall that we only handle location and sell";
 
    switch(kind){
 
@@ -282,9 +329,13 @@ function Result(kind){
 		console.log(youCanHaveBetter);
 		return youCanHaveBetter;
 	}
-	else{
+	else if (priceSquareMetter>RealHightPrice){
 		console.log(dontBuyIt);
 		return dontBuyIt;
+	}
+	else{
+		console.log(error);
+		return error;
 	}
 	break;
 	
@@ -297,6 +348,7 @@ function Result(kind){
 	if( priceSquareMetter<=RealLowPrice){
 
 		console.log(buyIt);
+
 		return buyIt;
 
 	}
@@ -309,9 +361,13 @@ function Result(kind){
 		console.log(youCanHaveBetter);
 		return youCanHaveBetter;
 	}
-	else{
+	else if ( priceSquareMetter>RealHightPrice){
 		console.log(dontBuyIt);
 		return dontBuyIt;
+	}
+	else{
+		console.log(error);
+		return error;
 	}
 	break;	
 
@@ -335,15 +391,34 @@ function Result(kind){
 		console.log(youCanHaveBetter);
 		return youCanHaveBetter;
 	}
-	else{
+	else if ( priceSquareMetter>RealHightPrice){
 		console.log(dontBuyIt);
 		return dontBuyIt;
+	}
+	else{
+		console.log(error);
+		return error;
 	}
 	break;
 
 
    }
 }
+
+
+function locationOrVente(argument){
+var caractere;
+var location;
+caractere=argument.substring(25,26);
+     
+      if ("l"==caractere){
+      	vente=false;
+      }
+      else if ("v"==caractere) {
+      	vente=true;
+      }
+ }  	
+
 
 //to send the response in html form, with the informations 
 function Html(){
