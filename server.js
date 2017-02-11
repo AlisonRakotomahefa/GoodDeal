@@ -1,5 +1,5 @@
 //We download all modules we need
-
+//https://www.leboncoin.fr/ventes_immobilieres/1085676416.htm?ca=12_s
 // to make server
 var express=require('express');
 //In order to take  informations in downloaded file
@@ -16,6 +16,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var urlLeBonCoin;
 var urlLesMeilleursAgents="https://www.meilleursagents.com/prix-immobilier/";
 var port=3500;
+var	price;
+var city;
+var kindOfEstate;
+var room;
+var squareMeter;
+var GES;
+var energyClass;
+var finalResult='';
+var htmlResult;
 //To read JSON file
 var content_LeBonCoin= fs.readFileSync("moduleLeBonCoin.json");
 var content_MeilleurAgent= fs.readFileSync("moduleMeilleurAgent.json");
@@ -26,20 +35,8 @@ var MeilleurAgent=JSON.parse(content_MeilleurAgent);
 var htmlSource=fs.readFileSync("index.html","utf8");
 
 
-function documentToSource(doc) {
-    // The non-standard window.document.outerHTML also exists,
-    // but currently does not preserve source code structure as well
-
-    // The following two operations are non-standard
-    return doc.doctype.toString()+doc.innerHTML;
-}
-
 app.use(express.static(__dirname + '/assets'));
 
-/*app.get('/',function(req,response){
-  response.sendFile(path.join(__dirname+'/index.html'));
-  
-});*/
 
 app.get('/', (request, response) => {response.sendFile(__dirname+'/index.html')});
 
@@ -53,56 +50,51 @@ app.post('/', function(req, res){
 		if (err){
 		console.log(err);
 		}else{
+			var data;
 			var $ = cheerio.load(body);
-			var	price;
-			var city;
-			var kindOfEstate;
-			var room;
-			var squareMeter;
-			var GES;
-			var energyClass;
-			var finalResult;
+
+			
 				
 		//Price of real estate
 			$('span.value:nth-child(3)').filter(function(){
-			var data=$(this);
+			data=$(this);
 			price=data.text();
 			realEstate.price=price;
 			})
 		//City of real Estate
 			$('div.line:nth-child(6) > h2:nth-child(1) > span:nth-child(2)').filter(function(){
-			var data=$(this);
+			data=$(this);
 			city=data.text();		
 			realEstate.city=city;
 			})
 		//Kind of real estate
 			$('div.line:nth-child(7) > h2:nth-child(1) > span:nth-child(2)').filter(function(){
-			var data=$(this);
+			data=$(this);
 			kindOfEstate=data.text();
 			realEstate.kindOfEstate=kindOfEstate;
 			})
 		//Number of room
 			$('div.line:nth-child(8) > h2:nth-child(1) > span:nth-child(2)').filter(function(){
-			var data=$(this);
+			data=$(this);
 			room=data.text();		
 			realEstate.room=room;
 			})
 		//Squarred Meter
 			$('div.line:nth-child(9) > h2:nth-child(1) > span:nth-child(2)').filter(function(){
-			var data=$(this);
+			data=$(this);
 			squareMeter=data.text();
 			realEstate.squareMeter=squareMeter;
 			console.log("TEEST3 "+realEstate.squareMeter)
 			}) 
 		//GES
 			$('div.line:nth-child(10) > h2:nth-child(1) > span:nth-child(2) > a:nth-child(1)').filter(function(){
-			var data=$(this);
+			data=$(this);
 			GES=data.text();
 			realEstate.GES=GES;
 			})
 		//Energy Class
 			$('div.line:nth-child(11) > h2:nth-child(1) > span:nth-child(2) > a:nth-child(1)').filter(function(){
-			var data=$(this);
+			data=$(this);
 			energyClass=data.text();
 			realEstate.energyClass=energyClass;
 			})
@@ -155,7 +147,7 @@ app.post('/', function(req, res){
 						MeilleurAgent.home.middle=middlePriceHomeText;
 						MeilleurAgent.home.worst=worstPriceHomeText;
 
-						result(realEstate.kindOfEstate);
+						Result(realEstate.kindOfEstate);
 						
 						break;
 
@@ -183,8 +175,15 @@ app.post('/', function(req, res){
 							console.log("middlePriceAppartmentText = "+ MeilleurAgent.appartement.middle);
 							console.log("worstPriceAppartmentTexte= "+ MeilleurAgent.appartement.worst);
 
-							finalResult=result(realEstate.kindOfEstate);
-							res.send(finalResult);
+							finalResult=Result(realEstate.kindOfEstate);
+							//res.send(finalResult);
+							/*res.send('<!DOCTYPE html><html><head><title>goodDeal</title></head>'+
+								    '<body><form style="text-align:center"><legend>Resultat</legend>'+
+								    '<h1> '+finalResult+' </h1> <br /></form>'+
+								    '</body></html>');
+							*/
+							htmlResult=Html();
+							res.send(htmlResult);
 							//res.send({ some: 'moduleLeBonCoin2.json' });
 
 							
@@ -210,7 +209,7 @@ app.post('/', function(req, res){
 						MeilleurAgent.location.middle=middlePriceLocationText;
 						MeilleurAgent.location.worst=worstPriceLocationText;
 
-						result(realEstate.kindOfEstate);
+						Result(realEstate.kindOfEstate);
 						break;
 
 					}
@@ -247,7 +246,7 @@ function Clean(arg,kind){
 		}
 
 //this function allow us to tell if either a good deal or a bad deal.
-function result(kind){
+function Result(kind){
 
 	var buyIt=" buy it , you wil never find better !! ";
 	var goodDeal="it's a good deal ";
@@ -344,6 +343,17 @@ function result(kind){
 
 
    }
+}
+
+//to send the response in html form, with the informations 
+function Html(){
+
+	var html='<!DOCTYPE html><html><head><title>goodDeal</title></head>'+
+								    '<body><form style="text-align:center"><legend>Resultat</legend>'+
+								    '<h1> '+finalResult+' </h1> <br /></form>'+
+								    '</body></html>';
+	return html;
+
 }
 
 app.listen(port);
